@@ -1,0 +1,49 @@
+# Dependencies
+node_modules/
+
+# Next
+.next/
+out/
+next-env.d.ts
+
+# TypeScript build info
+*.tsbuildinfo
+
+# Env
+.env
+.env.local
+.env.*.local
+
+# Vercel
+.vercel/
+
+# Power BI input
+powerbi-input/*
+!powerbi-input/README.md
+!powerbi-input/.gitkeep
+
+# Power BI sensitive/local files
+*.pbix
+*.pbit
+**/.pbi/localSettings.json
+**/.pbi/cache.abf
+
+# Validation outputs
+validation/**/api-results/*.csv
+validation/**/expected-results/*.csv
+validation/**/diffs/*.csv
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Test artifacts
+/test-results/
+/playwright-report/
+/coverage/
+
+# OS
+.DS_Store
+Thumbs.db

@@ -1,0 +1,27 @@
+{
+  "dashboard": "_template",
+  "description": "Mapeamento entre elementos do Power BI e fontes Snowflake camada ouro.",
+  "powerbi": {
+    "pbipPath": "powerbi-input/_template/",
+    "semanticModelPath": "powerbi-input/_template/",
+    "reportPath": "powerbi-input/_template/"
+  },
+  "goldLayer": {
+    "database": "CHANGE_ME",
+    "schema": "GOLD",
+    "tablesOrViews": []
+  },
+  "mappings": [
+    {
+      "powerbiMeasure": "CHANGE_ME",
+      "daxReference": "CHANGE_ME",
+      "powerbiVisual": "CHANGE_ME",
+      "snowflakeTableOrView": "CHANGE_ME",
+      "snowflakeExpression": "CHANGE_ME",
+      "queryFile": "snowflake/queries/dashboards/_template/kpis.sql",
+      "usedInComponent": "CHANGE_ME",
+      "status": "pending_validation",
+      "notes": "Confirmar regra com responsável de negócio."
+    }
+  ]
+}
