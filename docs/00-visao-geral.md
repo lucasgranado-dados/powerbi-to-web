@@ -25,6 +25,7 @@ Dashboard Power BI
 → exportação para PBIP
 → checagem de TMDL/PBIR
 → diagnóstico técnico com IA
+→ revisão de medidas DAX complexas (DAX Review Layer)
 → mapeamento Power BI → Snowflake camada ouro
 → definição de arquitetura Next.js
 → geração da página web

@@ -59,5 +59,5 @@ DASHBOARD_CACHE_SECONDS (opcional), NEXT_PUBLIC_APP_NAME (público)
 
 ## Referências
 
-- `docs/07-deploy-vercel.md`, `docs/08-checklist-final.md`
-- `prompts/07-revisao-final-e-pr.md`
+- `docs/08-deploy-vercel.md`, `docs/09-checklist-final.md`
+- `prompts/11-revisao-final-e-pr.md`

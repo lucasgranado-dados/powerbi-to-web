@@ -26,13 +26,20 @@ Tailwind v4 · shadcn/ui · Recharts · snowflake-sdk · Vitest · Playwright.
 - Expor segredos no frontend (`NEXT_PUBLIC_` é só para dados públicos).
 - Acessar Snowflake fora de `src/server/snowflake`.
 - Colocar regra crítica de negócio em componentes React.
+- Expor `AUTH_*` no client ou desabilitar o `middleware.ts` (login Google restrito
+  ao domínio corporativo) sem autorização. Auth só em `src/server/auth`.
 
 ## Skills
 
 Use as skills de `.claude/skills/` para conduzir cada etapa (disparam por
 descrição ou via `/<nome>`): `migrar-dashboard` (orquestrador), `pbip-diagnostico`,
-`snowflake-mapeamento`, `gerar-dashboard-web`, `validar-paridade`, `deploy-vercel`,
+`dax-review` (revisão de medidas DAX complexas), `snowflake-mapeamento`,
+`gerar-dashboard-web`, `validar-paridade`, `auth-nextauth`, `deploy-vercel`,
 `recharts`, `snowflake-semanticview`. Elas referenciam `prompts/` e `docs/`.
+
+Medidas DAX complexas (que dependem de contexto de filtro) passam pela **DAX
+Review Layer** antes de virar SQL/TS: prefira **bloquear** uma tradução insegura
+a gerar SQL incorreto. Ver `dax-review/` e `docs/04-revisao-medidas-dax-complexas.md`.
 
 ## Comandos úteis
 
@@ -40,6 +47,9 @@ descrição ou via `/<nome>`): `migrar-dashboard` (orquestrador), `pbip-diagnost
 npm run dashboard:init -- --slug <slug>
 npm run pbip:check -- --slug <slug>
 npm run pbip:inventory -- --slug <slug>
+npm run dax:extract -- --slug <slug>
+npm run dax:classify -- --slug <slug>
+npm run dax:review-cards -- --slug <slug>
 npm run validation:init -- --slug <slug>
 npm run snowflake:check
 npm run snowflake:test

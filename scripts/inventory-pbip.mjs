@@ -13,28 +13,11 @@ import fs from "node:fs";
 import path from "node:path";
 
 import { fail, getSlug, ok, title, warn } from "./lib/console.mjs";
+import { readText as read, walk } from "./lib/files.mjs";
 
 const ROOT = path.resolve(import.meta.dirname, "..");
 const { slug } = getSlug();
 const baseDir = path.join(ROOT, "powerbi-input", slug);
-
-function walk(dir, acc = [], depth = 0) {
-  if (depth > 12 || !fs.existsSync(dir)) return acc;
-  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
-    const full = path.join(dir, entry.name);
-    if (entry.isDirectory()) walk(full, acc, depth + 1);
-    else acc.push(full);
-  }
-  return acc;
-}
-
-const read = (f) => {
-  try {
-    return fs.readFileSync(f, "utf8");
-  } catch {
-    return "";
-  }
-};
 
 title(`Inventariando PBIP de "${slug}"`);
 
@@ -112,7 +95,7 @@ ${alerts.length ? alerts.map((a) => `- ⚠️ ${a}`).join("\n") : "- Nenhum aler
 1. Rode \`npm run pbip:check -- --slug ${slug}\` e resolva pendências.
 2. Execute o prompt \`prompts/01-diagnostico-pbip-tmdl-pbir.md\`.
 3. Preencha \`docs/dashboards/${slug}/diagnostico.md\`.
-4. Mapeie para Snowflake (prompt 03) e atualize o \`source-map\`.
+4. Revise as medidas DAX complexas (prompt 03) e mapeie para Snowflake (prompt 04).
 
 ## Arquivos encontrados
 

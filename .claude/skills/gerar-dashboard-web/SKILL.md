@@ -56,5 +56,5 @@ Vá para **`snowflake-mapeamento`** (se faltam dados reais) e **`validar-paridad
 
 ## Referências
 
-- `prompts/04-gerar-pagina-web.md`, `prompts/05-conectar-dados-ou-criar-mocks.md`
-- `docs/05-arquitetura-next.md`
+- `prompts/05-gerar-pagina-web.md`, `prompts/06-conectar-dados-ou-criar-mocks.md`
+- `docs/06-arquitetura-next.md`

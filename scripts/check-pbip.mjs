@@ -13,23 +13,13 @@ import fs from "node:fs";
 import path from "node:path";
 
 import { fail, getSlug, ok, title, warn } from "./lib/console.mjs";
+import { walk } from "./lib/files.mjs";
 
 const ROOT = path.resolve(import.meta.dirname, "..");
 const { slug } = getSlug();
 const baseDir = path.join(ROOT, "powerbi-input", slug);
 
 let errors = 0;
-
-/** Lista recursiva de arquivos (com limite defensivo). */
-function walk(dir, acc = [], depth = 0) {
-  if (depth > 12 || !fs.existsSync(dir)) return acc;
-  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
-    const full = path.join(dir, entry.name);
-    if (entry.isDirectory()) walk(full, acc, depth + 1);
-    else acc.push(full);
-  }
-  return acc;
-}
 
 title(`Checando PBIP de "${slug}"`);
 

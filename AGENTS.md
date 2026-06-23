@@ -19,7 +19,11 @@ migração Power BI → Web com Next.js + Snowflake).
 - **Nunca invente** nomes de tabela/view/coluna/métrica sem evidência — use
   `CHANGE_ME_*` e documente a pendência.
 - **Nunca exponha segredos**: sem `NEXT_PUBLIC_` para credenciais; conexão
-  Snowflake só em `src/server/snowflake` (módulos `server-only`).
+  Snowflake só em `src/server/snowflake` (módulos `server-only`); credenciais de
+  auth (`AUTH_*`) só em `src/server/auth` e `middleware.ts`.
+- **Todo dashboard publicado é autenticado**: login Google restrito ao domínio
+  corporativo (`AUTH_ALLOWED_DOMAINS`); não desabilite o `middleware.ts` sem
+  autorização. Ver `docs/11-autenticacao-auth-js.md`.
 - **Componentes React não contêm regra crítica** — cálculos ficam em
   `adapters.ts`/`metrics.ts` e devem espelhar o DAX (ou virar pendência).
 - **SQL isolado** em `snowflake/queries/...` e espelhado em `queries.ts`.
@@ -30,12 +34,15 @@ migração Power BI → Web com Next.js + Snowflake).
 
 Há **skills** em `.claude/skills/` que guiam cada etapa e disparam por descrição
 (ou via `/<nome>`): `migrar-dashboard` (orquestrador), `pbip-diagnostico`,
-`snowflake-mapeamento`, `gerar-dashboard-web`, `validar-paridade`, `deploy-vercel`,
-além de `recharts` e `snowflake-semanticview`. Elas **referenciam** os `prompts/`
-e `docs/` — mesma fonte de verdade.
+`dax-review`, `snowflake-mapeamento`, `gerar-dashboard-web`, `validar-paridade`,
+`auth-nextauth`, `deploy-vercel`, além de `recharts` e `snowflake-semanticview`.
+Elas **referenciam** os `prompts/` e `docs/` — mesma fonte de verdade.
 
-Para conduzir manualmente, siga `prompts/00`..`07` na ordem (ver
-`docs/04-fluxo-de-prompts.md`).
+Para conduzir manualmente, siga `prompts/00`..`11` na ordem (ver
+`docs/05-fluxo-de-prompts.md`). A **revisão de medidas DAX complexas**
+(`prompts/03` — DAX Review Layer) vem **antes** do mapeamento Snowflake
+(`prompts/04`). A autenticação (`prompts/08`..`10` — auditar/implementar/validar)
+vem **antes** da revisão final e PR (`prompts/11`).
 
 ## Ao terminar uma tarefa
 
@@ -59,4 +66,5 @@ Para conduzir manualmente, siga `prompts/00`..`07` na ordem (ver
   snowflake-queries, source-map, validation-notes.
 - `src/components/{dashboard,ui}/` — componentes reutilizáveis.
 - `src/server/snowflake/` — conexão/execução (server-only).
+- `src/server/auth/` + `middleware.ts` — autenticação (Auth.js + Google).
 - `snowflake/`, `validation/`, `docs/`, `prompts/`, `scripts/`.

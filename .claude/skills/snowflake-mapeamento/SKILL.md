@@ -55,5 +55,5 @@ Vá para **`gerar-dashboard-web`** (se a UI ainda não existe) e depois
 
 ## Referências
 
-- `prompts/03-mapear-snowflake-camada-ouro.md`
-- `docs/09-snowflake-camada-ouro.md`, `snowflake/README.md`
+- `prompts/04-mapear-snowflake-camada-ouro.md`
+- `docs/10-snowflake-camada-ouro.md`, `snowflake/README.md`

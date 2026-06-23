@@ -30,9 +30,10 @@ GitHub Actions · Vercel.
 ## 4. Workflow resumido
 
 ```text
-PBIP → checar TMDL/PBIR → diagnóstico (IA) → mapear Snowflake (ouro) →
-arquitetura → gerar página → conectar dados/mocks → validar paridade →
-revisão humana → deploy Vercel → DataHub
+PBIP → checar TMDL/PBIR → diagnóstico (IA) → revisar DAX complexo (DAX Review
+Layer) → mapear Snowflake (ouro) → arquitetura → gerar página →
+conectar dados/mocks → validar paridade → revisão humana →
+autenticação (Auth.js + Google) → deploy Vercel → DataHub
 ```
 
 ## 5. Quickstart
@@ -81,7 +82,7 @@ npm run snowflake:check         # confere variáveis (sem imprimir valores)
 npm run snowflake:test          # SELECT CURRENT_VERSION()
 ```
 
-Detalhes: [`docs/09-snowflake-camada-ouro.md`](docs/09-snowflake-camada-ouro.md).
+Detalhes: [`docs/10-snowflake-camada-ouro.md`](docs/10-snowflake-camada-ouro.md).
 
 ## 10. Iniciar um dashboard
 
@@ -95,8 +96,10 @@ partir do `_template`. É **idempotente** (use `--force` para sobrescrever).
 
 ## 11. Usar os prompts de IA
 
-Na sua IDE com IA, rode `prompts/00`..`07` na ordem, substituindo
-`{{DASHBOARD_SLUG}}`. Guia: [`docs/04-fluxo-de-prompts.md`](docs/04-fluxo-de-prompts.md).
+Na sua IDE com IA, rode `prompts/00`..`11` na ordem, substituindo
+`{{DASHBOARD_SLUG}}`. A revisão de medidas DAX complexas (`03`) vem antes do
+mapeamento Snowflake (`04`); a autenticação (`08`–`10`) vem antes da revisão
+final/PR (`11`). Guia: [`docs/05-fluxo-de-prompts.md`](docs/05-fluxo-de-prompts.md).
 
 ## 12. Rodar local
 
@@ -119,7 +122,17 @@ python validation/compare-results.py \
   --key METRIC_ID --value VALUE --tolerance 0.01
 ```
 
-Detalhes: [`docs/06-validacao-paridade.md`](docs/06-validacao-paridade.md).
+Detalhes: [`docs/07-validacao-paridade.md`](docs/07-validacao-paridade.md).
+
+## 13b. Proteger com autenticação
+
+Todo dashboard nasce protegido por **Auth.js + Google**, restrito aos domínios
+corporativos (`@suno.com.br`, `@sunoresearch.com.br`). Configure as `AUTH_*` em
+`.env.local` (`npx auth secret`) e crie as credenciais OAuth no Google. Guias:
+[`docs/11-autenticacao-auth-js.md`](docs/11-autenticacao-auth-js.md),
+[`docs/12-google-oauth-setup.md`](docs/12-google-oauth-setup.md),
+[`docs/13-variaveis-ambiente-auth.md`](docs/13-variaveis-ambiente-auth.md),
+[`docs/14-datahub-iframe-auth.md`](docs/14-datahub-iframe-auth.md).
 
 ## 14. Deploy na Vercel
 
@@ -129,8 +142,9 @@ vercel            # preview
 vercel --prod     # produção
 ```
 
-Configure as variáveis `SNOWFLAKE_*` no painel da Vercel (nunca `NEXT_PUBLIC_`
-para segredos). Detalhes: [`docs/07-deploy-vercel.md`](docs/07-deploy-vercel.md).
+Configure as variáveis `SNOWFLAKE_*` **e** `AUTH_*` no painel da Vercel (nunca
+`NEXT_PUBLIC_` para segredos). Detalhes:
+[`docs/08-deploy-vercel.md`](docs/08-deploy-vercel.md).
 
 ## 15. Abrir PR
 
@@ -138,7 +152,7 @@ Use o template em `.github/pull_request_template.md` e preencha o checklist.
 
 ## 16. Checklist final
 
-Veja [`docs/08-checklist-final.md`](docs/08-checklist-final.md).
+Veja [`docs/09-checklist-final.md`](docs/09-checklist-final.md).
 
 ---
 
@@ -147,8 +161,9 @@ Veja [`docs/08-checklist-final.md`](docs/08-checklist-final.md).
 ```text
 .
 ├── powerbi-input/      # PBIP por dashboard (ignorado pelo git)
-├── docs/               # documentação operacional (00..09 + dashboards/)
-├── prompts/            # prompts de IA (00..07)
+├── docs/               # documentação operacional (00..14 + dashboards/)
+├── prompts/            # prompts de IA (00..11)
+├── dax-review/         # padrões + gabaritos da DAX Review Layer
 ├── scripts/            # automação (init, check-pbip, inventory, snowflake, ...)
 ├── snowflake/          # queries SQL + mappings (source-map)
 ├── validation/         # comparação de paridade (Python)
@@ -157,7 +172,9 @@ Veja [`docs/08-checklist-final.md`](docs/08-checklist-final.md).
 │   ├── components/     # dashboard/ + ui/ (shadcn)
 │   ├── features/       # lógica/dados por dashboard
 │   ├── server/snowflake/  # conexão server-only
+│   ├── server/auth/    # Auth.js (config, allowlist, NextAuth)
 │   └── lib/            # formatters, chart-utils, cn()
+├── middleware.ts       # proteção de rotas (autenticação)
 ├── tests/              # unit (Vitest) + e2e (Playwright)
 └── .github/            # CI + templates de PR/Issue
 ```
@@ -175,6 +192,9 @@ Veja [`docs/08-checklist-final.md`](docs/08-checklist-final.md).
 | `npm run dashboard:init -- --slug X` | Cria a estrutura de um dashboard |
 | `npm run pbip:check -- --slug X` | Valida o PBIP |
 | `npm run pbip:inventory -- --slug X` | Gera inventário do PBIP |
+| `npm run dax:extract -- --slug X` | Extrai medidas DAX do TMDL → catálogo |
+| `npm run dax:classify -- --slug X` | Classifica a complexidade das medidas |
+| `npm run dax:review-cards -- --slug X` | Gera cards de revisão + traduções/casos |
 | `npm run validation:init -- --slug X` | Cria pastas de validação |
 | `npm run snowflake:check` | Confere variáveis do Snowflake |
 | `npm run snowflake:test` | Testa a conexão Snowflake |
@@ -192,9 +212,11 @@ sozinhas** quando o pedido casa com a descrição e também podem ser chamadas p
 | --- | --- |
 | `migrar-dashboard` | Porta de entrada — orquestra o pipeline ponta a ponta |
 | `pbip-diagnostico` | Checar/inventariar o PBIP e gerar o diagnóstico |
+| `dax-review` | Revisar/classificar medidas DAX complexas antes de traduzir (DAX Review Layer) |
 | `snowflake-mapeamento` | Mapear medidas → camada ouro, queries, adapters, source-map |
 | `gerar-dashboard-web` | Recriar a página (Server Component + componentes do repo) |
 | `validar-paridade` | Comparar números web × Power BI (CSV/tolerância) |
+| `auth-nextauth` | Proteger o dashboard com Auth.js + Google (domínio corporativo, iframe) |
 | `deploy-vercel` | Deploy na Vercel + env vars + DataHub |
 
 **Conhecimento:** `recharts` (gráficos no padrão `ChartCard`/`chart-utils`) ·

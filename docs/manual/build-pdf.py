@@ -171,10 +171,10 @@ def draw_cover(canv, doc):
         canv.drawString(x, PAGE_H - 330 - i * 20, line)
     canv.setFont("Courier", 10)
     canv.setFillColor(white)
-    canv.drawString(x, 120, "git clone -> init -> diagnostico -> mapear -> gerar -> validar -> deploy")
+    canv.drawString(x, 120, "diagnostico -> DAX review -> mapear -> gerar -> validar -> auth -> deploy")
     canv.setFont("Helvetica", 10)
     canv.setFillColor(HexColor("#c7d2fe"))
-    canv.drawString(x, 92, "Boilerplate powerbi-to-web   |   Versão 1.0   |   Uso interno")
+    canv.drawString(x, 92, "Boilerplate powerbi-to-web   |   Versão 1.1   |   Uso interno")
     canv.restoreState()
 
 
@@ -218,10 +218,13 @@ def build():
         [["1. Exportar PBIP", "O .pbix vira projeto legível (TMDL + PBIR)."],
          ["2. Checar TMDL/PBIR", "Confirmar que os arquivos estão completos."],
          ["3. Diagnóstico (IA)", "Mapear páginas, visuais, medidas, filtros e riscos."],
-         ["4. Mapear Snowflake", "Ligar medidas a tabelas/views da camada ouro."],
-         ["5. Gerar a página", "Recriar a tela em Next.js com componentes prontos."],
-         ["6. Validar paridade", "Comparar números web x Power BI."],
-         ["7. Deploy + DataHub", "Publicar na Vercel e catalogar."]],
+         ["4. Revisar DAX complexo", "DAX Review Layer: classificar e validar medidas que "
+          "dependem de contexto de filtro antes de virar SQL."],
+         ["5. Mapear Snowflake", "Ligar medidas a tabelas/views da camada ouro."],
+         ["6. Gerar a página", "Recriar a tela em Next.js com componentes prontos."],
+         ["7. Validar paridade", "Comparar números web x Power BI."],
+         ["8. Proteger com auth", "Login Google restrito ao domínio corporativo (Auth.js)."],
+         ["9. Deploy + DataHub", "Publicar na Vercel e catalogar."]],
         [150, CONTENT_W - 150])]
     S += [Spacer(1, 6)]
     S += [data_table(
@@ -293,7 +296,18 @@ def build():
         "Na IDE, acione a skill <font face='Courier'>pbip-diagnostico</font> (ou cole "
         "prompts/01). A IA lê o TMDL/PBIR e preenche o diagnóstico: páginas, visuais, "
         "medidas, filtros, riscos e complexidade.", body)])]
-    S += [step(5, "Configurar o Snowflake", [
+    S += [step(5, "Revisar medidas DAX complexas (DAX Review Layer)", [
+        code("npm run dax:extract -- --slug <slug>       # medidas do TMDL -> catalogo\n"
+             "npm run dax:classify -- --slug <slug>      # simple|moderate|complex|critical\n"
+             "npm run dax:review-cards -- --slug <slug>  # cards + traducoes + casos"),
+        Paragraph("Acione a skill <font face='Courier'>dax-review</font> (ou prompts/03). "
+                  "Medidas que dependem do contexto de filtro (CALCULATE, SELECTEDVALUE, "
+                  "REMOVEFILTERS, ALL/ALLSELECTED, iteradores, inteligência de tempo) são "
+                  "revisadas <b>antes</b> de virar SQL.", body),
+        danger("Prefira <b>bloquear</b> uma tradução insegura a gerar SQL incorreto: "
+               "medida crítica vira <font face='Courier'>blocked_for_auto_translation</font> "
+               "até ter caso de validação que comprove a paridade.")])]
+    S += [step(6, "Configurar o Snowflake", [
         code("npm run snowflake:check   # confere variaveis (sem mostrar valores)\n"
              "npm run snowflake:test    # SELECT CURRENT_VERSION()"),
         Paragraph("As variáveis ficam em .env.local (local) e nas Environment "
@@ -301,20 +315,20 @@ def build():
 
     # 4. Passo a passo 2
     S += [PageBreak(), Paragraph("4. Passo a passo da migração (continuação)", h2)]
-    S += [step(6, "Mapear a camada ouro do Snowflake", [
+    S += [step(7, "Mapear a camada ouro do Snowflake", [
         Paragraph("Acione <font face='Courier'>snowflake-mapeamento</font> (ou "
-                  "prompts/03). A IA liga cada medida/visual a uma tabela/view da "
+                  "prompts/04). A IA liga cada medida/visual a uma tabela/view da "
                   "camada ouro e cria o source-map, as queries SQL, os adapters e o "
                   "rastreamento de métricas.", body),
         note("Sem evidência do nome real, usa-se "
              "<font face='Courier'>CHANGE_ME_*</font> e marca-se a pendência.")])]
-    S += [step(7, "Gerar a página web", [
+    S += [step(8, "Gerar a página web", [
         Paragraph("Acione <font face='Courier'>gerar-dashboard-web</font> (ou "
-                  "prompts/04 e 05). A IA recria a tela com os componentes prontos "
+                  "prompts/05 e 06). A IA recria a tela com os componentes prontos "
                   "(header, filtros, KPIs, gráfico Recharts, tabela) e os estados de "
                   "carregamento, erro e vazio.", body),
         code("npm run dev   # http://localhost:3000/dashboards/<slug>")])]
-    S += [step(8, "Validar a paridade contra o Power BI", [
+    S += [step(9, "Validar a paridade contra o Power BI", [
         code("npm run validation:init -- --slug <slug>\n"
              "python validation/compare-results.py \\\n"
              "  --expected validation/dashboards/<slug>/powerbi/expected-results/kpis.csv \\\n"
@@ -322,12 +336,22 @@ def build():
              "  --key METRIC_ID --value VALUE --tolerance 0.01"),
         Paragraph("Compara os números (diferença absoluta, %, status). A validação "
                   "final é de <b>negócio</b>: alguém da área assina.", body)])]
-    S += [step(9, "Deploy na Vercel", [
+    S += [step(10, "Proteger com autenticação", [
+        code("npx auth secret              # gera AUTH_SECRET em .env.local\n"
+             "# AUTH_GOOGLE_ID / AUTH_GOOGLE_SECRET / AUTH_ALLOWED_DOMAINS"),
+        Paragraph("Acione <font face='Courier'>auth-nextauth</font> (ou prompts/08–10). "
+                  "Todo dashboard nasce protegido por <b>Auth.js + Google</b>, com o "
+                  "<font face='Courier'>middleware.ts</font> restringindo o acesso ao "
+                  "domínio corporativo. O painel embutido no DataHub (iframe) continua "
+                  "autenticado.", body),
+        warn("Nunca exponha as variáveis <font face='Courier'>AUTH_*</font> no client "
+             "nem desabilite o <font face='Courier'>middleware.ts</font> sem autorização.")])]
+    S += [step(11, "Deploy na Vercel", [
         code("npm run lint && npm run typecheck && npm run test && npm run build\n"
              "vercel          # preview\n"
              "vercel --prod   # producao"),
-        Paragraph("Configure as variáveis SNOWFLAKE_* no painel da Vercel.", body)])]
-    S += [step(10, "Publicar no DataHub", [Paragraph(
+        Paragraph("Configure as variáveis SNOWFLAKE_* e AUTH_* no painel da Vercel.", body)])]
+    S += [step(12, "Publicar no DataHub", [Paragraph(
         "Abra um PR usando o template do repositório e publique/embuta a URL do "
         "dashboard no DataHub conforme o processo da sua área.", body)])]
 
@@ -340,9 +364,11 @@ def build():
         ["Skill", "Quando usar"],
         [["migrar-dashboard", "Porta de entrada - conduz o fluxo inteiro"],
          ["pbip-diagnostico", "Checar/inventariar o PBIP e gerar o diagnóstico"],
+         ["dax-review", "Revisar/classificar/validar medidas DAX complexas antes do SQL"],
          ["snowflake-mapeamento", "Mapear medidas -> camada ouro, queries, adapters"],
          ["gerar-dashboard-web", "Recriar a página em Next.js"],
          ["validar-paridade", "Comparar números web x Power BI"],
+         ["auth-nextauth", "Proteger com Auth.js + Google (domínio, iframe DataHub)"],
          ["deploy-vercel", "Deploy + variáveis de ambiente"],
          ["recharts", "Padrões de gráfico do projeto"],
          ["snowflake-semanticview", "Criar/validar semantic views via snow CLI"]],
@@ -351,6 +377,12 @@ def build():
     S += [danger("<b>Segurança:</b> credenciais nunca vão para o navegador. Não use "
                  "<font face='Courier'>NEXT_PUBLIC_</font> para segredos. A conexão "
                  "Snowflake acontece só no servidor.")]
+    S += [Spacer(1, 4)]
+    S += [danger("<b>Autenticação:</b> não exponha as variáveis "
+                 "<font face='Courier'>AUTH_*</font> no client nem desabilite o "
+                 "<font face='Courier'>middleware.ts</font> (login Google restrito ao "
+                 "domínio corporativo) sem autorização. Auth só em "
+                 "<font face='Courier'>src/server/auth</font>.")]
     S += [Spacer(1, 4)]
     S += [warn("<b>Sem invenção:</b> não crie regra de negócio nem nome de "
                "tabela/coluna sem evidência no TMDL/PBIR. Use CHANGE_ME e documente "
@@ -364,10 +396,13 @@ def build():
     checks_l = ["PBIP copiado para powerbi-input/&lt;slug&gt;/",
                 "TMDL e PBIR encontrados (pbip:check)",
                 "Diagnóstico criado",
+                "Medidas DAX complexas revisadas (cards)",
+                "Nenhuma medida crítica bloqueada pendente",
                 "Source-map sem CHANGE_ME pendente",
                 "Queries apontando para a camada ouro real",
                 "Página criada (KPIs, gráfico, tabela, estados)"]
     checks_r = ["Sem segredos no frontend",
+                "Auth ativa (middleware + domínio + login Google)",
                 "lint, typecheck, test, build ok",
                 "Mocks identificados (se houver)",
                 "Paridade validada (ou pendência documentada)",
@@ -391,7 +426,11 @@ def build():
          ["Página não aparece em /dashboards/_template",
           "Pastas com '_' são privadas (modelo). Crie um slug real com dashboard:init."],
          ["Números não batem com o Power BI",
-          "Confira filtros e período iguais; ajuste a query/adapter; registre tolerância."]],
+          "Confira filtros e período iguais; ajuste a query/adapter; registre tolerância."],
+         ["Medida complexa diverge (CALCULATE etc.)",
+          "Revise o card da DAX Review Layer (contexto de filtro) antes de mexer na query."],
+         ["Sempre cai em /auth/signin",
+          "Faça login com a conta corporativa; confira AUTH_* e AUTH_ALLOWED_DOMAINS."]],
         [175, CONTENT_W - 175])]
     S += [Spacer(1, 8), Paragraph("9. Referência rápida de comandos", h2)]
     S += [code("npm run doctor                            # checa o ambiente\n"
@@ -404,7 +443,7 @@ def build():
                "npm run dev | lint | typecheck | test | build\n"
                "vercel | vercel --prod                    # deploy")]
     S += [Spacer(1, 8), Paragraph(
-        "Documentação completa em docs/00...09  |  Prompts em prompts/  |  "
+        "Documentação completa em docs/00...14  |  Prompts em prompts/00...11  |  "
         "Regras para IA em AGENTS.md / CLAUDE.md", muted)]
 
     doc.build(S)
