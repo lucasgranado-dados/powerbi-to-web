@@ -21,6 +21,10 @@ next-env.d.ts
 powerbi-input/*
 !powerbi-input/README.md
 !powerbi-input/.gitkeep
+# Fixture de exemplo da DAX Review Layer (TMDL fake, versionado de propósito)
+!powerbi-input/exemplo/
+powerbi-input/exemplo/**/*.pbix
+powerbi-input/exemplo/**/*.pbit
 
 # Power BI sensitive/local files
 *.pbix

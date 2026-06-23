@@ -78,7 +78,7 @@ export default function Home() {
             </pre>
             <p className="text-xs text-muted-foreground">
               Depois rode os prompts em <code>prompts/</code> na ordem (ver{" "}
-              <code>docs/04-fluxo-de-prompts.md</code>).
+              <code>docs/05-fluxo-de-prompts.md</code>).
             </p>
           </CardContent>
         </Card>

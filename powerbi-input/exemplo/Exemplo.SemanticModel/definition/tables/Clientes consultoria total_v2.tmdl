@@ -1,0 +1,33 @@
+/// Fixture de exemplo da DAX Review Layer — TMDL FICTÍCIO (não é dado real).
+/// Serve para demonstrar `npm run dax:extract|classify|review-cards -- --slug exemplo`.
+table 'Clientes consultoria total_v2'
+	lineageTag: 11111111-1111-1111-1111-111111111111
+
+	measure 'Receita' = SUM('Clientes consultoria total_v2'[VALOR])
+		formatString: \#,0
+
+	measure 'Pedidos' = DISTINCTCOUNT('Clientes consultoria total_v2'[PEDIDO_ID])
+
+	measure 'Ticket Médio' = DIVIDE([Receita], [Pedidos])
+		formatString: \#,0.00
+
+	measure 'Closer' =
+			VAR Closer =
+				CALCULATE(
+					SELECTEDVALUE('Clientes consultoria total_v2'[CLOSER_FUNIL]),
+					REMOVEFILTERS(dCalendario)
+				)
+			RETURN
+				Closer
+		formatString: 0
+
+	measure 'Receita YTD' = TOTALYTD(SUM('Clientes consultoria total_v2'[VALOR]), dCalendario[Data])
+		formatString: \#,0
+
+	column VALOR
+		dataType: double
+		sourceColumn: VALOR
+
+	column CLOSER_FUNIL
+		dataType: string
+		sourceColumn: CLOSER_FUNIL

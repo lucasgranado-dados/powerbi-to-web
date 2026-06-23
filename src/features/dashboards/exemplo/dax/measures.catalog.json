@@ -1,0 +1,112 @@
+{
+  "dashboard": "exemplo",
+  "generatedAt": "2026-06-22T18:52:56.715Z",
+  "generatedBy": "dax:extract",
+  "measures": [
+    {
+      "name": "Receita",
+      "table": "Clientes consultoria total_v2",
+      "dax": "SUM('Clientes consultoria total_v2'[VALOR])",
+      "sourceFile": "Exemplo.SemanticModel/definition/tables/Clientes consultoria total_v2.tmdl",
+      "dependsOn": [],
+      "dependsOnTables": [
+        "Clientes consultoria total_v2"
+      ],
+      "usedFunctions": [
+        "SUM"
+      ],
+      "status": "classified",
+      "complexity": "simple",
+      "riskReasons": [
+        "only simple aggregations"
+      ],
+      "requiresManualReview": false
+    },
+    {
+      "name": "Pedidos",
+      "table": "Clientes consultoria total_v2",
+      "dax": "DISTINCTCOUNT('Clientes consultoria total_v2'[PEDIDO_ID])",
+      "sourceFile": "Exemplo.SemanticModel/definition/tables/Clientes consultoria total_v2.tmdl",
+      "dependsOn": [],
+      "dependsOnTables": [
+        "Clientes consultoria total_v2"
+      ],
+      "usedFunctions": [
+        "DISTINCTCOUNT"
+      ],
+      "status": "classified",
+      "complexity": "simple",
+      "riskReasons": [
+        "only simple aggregations"
+      ],
+      "requiresManualReview": false
+    },
+    {
+      "name": "Ticket Médio",
+      "table": "Clientes consultoria total_v2",
+      "dax": "DIVIDE([Receita], [Pedidos])",
+      "sourceFile": "Exemplo.SemanticModel/definition/tables/Clientes consultoria total_v2.tmdl",
+      "dependsOn": [
+        "Receita",
+        "Pedidos"
+      ],
+      "dependsOnTables": [],
+      "usedFunctions": [
+        "DIVIDE"
+      ],
+      "status": "classified",
+      "complexity": "moderate",
+      "riskReasons": [
+        "uses DIVIDE"
+      ],
+      "requiresManualReview": false
+    },
+    {
+      "name": "Closer",
+      "table": "Clientes consultoria total_v2",
+      "dax": "VAR Closer =\n\tCALCULATE(\n\t\tSELECTEDVALUE('Clientes consultoria total_v2'[CLOSER_FUNIL]),\n\t\tREMOVEFILTERS(dCalendario)\n\t)\nRETURN\n\tCloser",
+      "sourceFile": "Exemplo.SemanticModel/definition/tables/Clientes consultoria total_v2.tmdl",
+      "dependsOn": [],
+      "dependsOnTables": [
+        "Clientes consultoria total_v2"
+      ],
+      "usedFunctions": [
+        "CALCULATE",
+        "SELECTEDVALUE",
+        "REMOVEFILTERS"
+      ],
+      "status": "needs_review",
+      "complexity": "complex",
+      "riskReasons": [
+        "uses CALCULATE",
+        "uses SELECTEDVALUE",
+        "uses REMOVEFILTERS",
+        "uses VAR/RETURN"
+      ],
+      "requiresManualReview": true
+    },
+    {
+      "name": "Receita YTD",
+      "table": "Clientes consultoria total_v2",
+      "dax": "TOTALYTD(SUM('Clientes consultoria total_v2'[VALOR]), dCalendario[Data])",
+      "sourceFile": "Exemplo.SemanticModel/definition/tables/Clientes consultoria total_v2.tmdl",
+      "dependsOn": [],
+      "dependsOnTables": [
+        "Clientes consultoria total_v2",
+        "dCalendario"
+      ],
+      "usedFunctions": [
+        "TOTALYTD",
+        "SUM"
+      ],
+      "status": "blocked_for_auto_translation",
+      "complexity": "critical",
+      "riskReasons": [
+        "uses time intelligence (TOTALYTD)"
+      ],
+      "requiresManualReview": true
+    }
+  ],
+  "classifiedAt": "2026-06-22T18:52:56.820Z",
+  "reviewCardsAt": "2026-06-22T18:52:56.929Z"
+}

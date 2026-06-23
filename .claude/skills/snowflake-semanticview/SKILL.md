@@ -72,4 +72,4 @@ COMMENT = 'comment_about_dim_fact_or_metric'
 
 ## Referências
 
-- Skill **`snowflake-mapeamento`** (como o repo consome a fonte), `docs/09-snowflake-camada-ouro.md`.
+- Skill **`snowflake-mapeamento`** (como o repo consome a fonte), `docs/10-snowflake-camada-ouro.md`.

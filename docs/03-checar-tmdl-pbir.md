@@ -49,4 +49,4 @@ Habilite **enhanced report metadata (PBIR)**, salve novamente e recopie. A pasta
 
 ## Próximo
 
-Leia `04-fluxo-de-prompts.md`.
+Leia `04-revisao-medidas-dax-complexas.md`.

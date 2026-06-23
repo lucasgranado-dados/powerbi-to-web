@@ -53,5 +53,5 @@ Com paridade ok e validação de negócio assinada, vá para **`deploy-vercel`**
 
 ## Referências
 
-- `prompts/06-validacao-paridade.md`
-- `docs/06-validacao-paridade.md`, `validation/README.md`
+- `prompts/07-validacao-paridade.md`
+- `docs/07-validacao-paridade.md`, `validation/README.md`

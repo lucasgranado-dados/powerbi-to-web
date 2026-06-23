@@ -48,7 +48,9 @@ filtros/segmentações, bookmarks/drill-through/RLS, hierarquia visual,
 
 ## Próximo
 
-Vá para **`snowflake-mapeamento`** (dados) e/ou **`gerar-dashboard-web`** (UI).
+Se houver medidas DAX que dependem de contexto de filtro, vá para **`dax-review`**
+(DAX Review Layer) antes do mapeamento. Depois, **`snowflake-mapeamento`** (dados)
+e/ou **`gerar-dashboard-web`** (UI).
 
 ## Referências
 
