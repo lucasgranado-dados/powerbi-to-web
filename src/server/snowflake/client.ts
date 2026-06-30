@@ -20,12 +20,11 @@ import type { SnowflakeConfig } from "./types";
 const REQUIRED_VARS = [
   "SNOWFLAKE_ACCOUNT",
   "SNOWFLAKE_USERNAME",
+  "SNOWFLAKE_PASSWORD",
   "SNOWFLAKE_ROLE",
   "SNOWFLAKE_WAREHOUSE",
   "SNOWFLAKE_DATABASE",
   "SNOWFLAKE_SCHEMA",
-  "SNOWFLAKE_AUTHENTICATOR",
-  "SNOWFLAKE_PRIVATE_KEY",
 ] as const;
 
 export class SnowflakeConfigError extends Error {
@@ -49,22 +48,14 @@ export function getSnowflakeConfig(): SnowflakeConfig {
     );
   }
 
-  // Permite colar a chave PEM com "\n" literais (comum em painéis de deploy).
-  const privateKey = (process.env.SNOWFLAKE_PRIVATE_KEY as string).replace(
-    /\\n/g,
-    "\n",
-  );
-
   return {
     account: process.env.SNOWFLAKE_ACCOUNT as string,
     username: process.env.SNOWFLAKE_USERNAME as string,
+    password: process.env.SNOWFLAKE_PASSWORD as string,
     role: process.env.SNOWFLAKE_ROLE as string,
     warehouse: process.env.SNOWFLAKE_WAREHOUSE as string,
     database: process.env.SNOWFLAKE_DATABASE as string,
     schema: process.env.SNOWFLAKE_SCHEMA as string,
-    authenticator: process.env.SNOWFLAKE_AUTHENTICATOR as string,
-    privateKey,
-    privateKeyPass: process.env.SNOWFLAKE_PRIVATE_KEY_PASSPHRASE?.trim() || undefined,
   };
 }
 
@@ -82,13 +73,11 @@ function createConnection(config: SnowflakeConfig): Promise<Connection> {
   const connection = snowflake.createConnection({
     account: config.account,
     username: config.username,
+    password: config.password,
     role: config.role,
     warehouse: config.warehouse,
     database: config.database,
     schema: config.schema,
-    authenticator: config.authenticator,
-    privateKey: config.privateKey,
-    privateKeyPass: config.privateKeyPass,
   });
 
   return new Promise<Connection>((resolve, reject) => {

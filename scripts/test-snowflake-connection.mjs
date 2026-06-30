@@ -22,12 +22,11 @@ loadEnv(ROOT);
 const REQUIRED = [
   "SNOWFLAKE_ACCOUNT",
   "SNOWFLAKE_USERNAME",
+  "SNOWFLAKE_PASSWORD",
   "SNOWFLAKE_ROLE",
   "SNOWFLAKE_WAREHOUSE",
   "SNOWFLAKE_DATABASE",
   "SNOWFLAKE_SCHEMA",
-  "SNOWFLAKE_AUTHENTICATOR",
-  "SNOWFLAKE_PRIVATE_KEY",
 ];
 
 title("Testando conexão com o Snowflake");
@@ -48,13 +47,11 @@ try {
 const connection = snowflake.createConnection({
   account: process.env.SNOWFLAKE_ACCOUNT,
   username: process.env.SNOWFLAKE_USERNAME,
+  password: process.env.SNOWFLAKE_PASSWORD,
   role: process.env.SNOWFLAKE_ROLE,
   warehouse: process.env.SNOWFLAKE_WAREHOUSE,
   database: process.env.SNOWFLAKE_DATABASE,
   schema: process.env.SNOWFLAKE_SCHEMA,
-  authenticator: process.env.SNOWFLAKE_AUTHENTICATOR,
-  privateKey: process.env.SNOWFLAKE_PRIVATE_KEY?.replace(/\\n/g, "\n"),
-  privateKeyPass: process.env.SNOWFLAKE_PRIVATE_KEY_PASSPHRASE?.trim() || undefined,
 });
 
 connection.connect((err) => {

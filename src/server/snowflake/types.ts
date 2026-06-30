@@ -9,15 +9,11 @@
 export interface SnowflakeConfig {
   account: string;
   username: string;
+  password: string;
   role: string;
   warehouse: string;
   database: string;
   schema: string;
-  authenticator: string;
-  /** Conteúdo PEM da chave privada (key-pair auth). */
-  privateKey: string;
-  /** Opcional — apenas se a chave estiver protegida por passphrase. */
-  privateKeyPass?: string;
 }
 
 /** Parâmetros (binds) posicionais para uma query parametrizada. */
