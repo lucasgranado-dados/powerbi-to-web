@@ -15,7 +15,7 @@ const { auth } = NextAuth(authConfig);
  * (login em nível superior / popup).
  */
 export default auth((req) => {
-  if (req.auth) return NextResponse.next();
+  if (req.auth?.user) return NextResponse.next();
 
   const { nextUrl } = req;
   const signInUrl = new URL("/auth/signin", nextUrl.origin);
