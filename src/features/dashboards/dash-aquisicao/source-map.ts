@@ -1,0 +1,169 @@
+/**
+ * SOURCE-MAP (tipado) — versão TypeScript do mapeamento Power BI → Snowflake.
+ *
+ * O JSON canônico vive em snowflake/mappings/dash-aquisicao.source-map.json.
+ * Aqui exportamos os TIPOS e uma cópia tipada para uso no app/validação.
+ * Mantenha os dois em sincronia.
+ */
+
+export type MappingStatus =
+  | "pending_mapping"
+  | "pending_validation"
+  | "validated";
+
+export interface SourceMapEntry {
+  powerbiMeasure: string;
+  daxReference: string;
+  powerbiVisual: string;
+  snowflakeTableOrView: string;
+  snowflakeExpression: string;
+  queryFile: string;
+  usedInComponent: string;
+  status: MappingStatus;
+  notes: string;
+}
+
+export interface DashboardSourceMap {
+  dashboard: string;
+  description: string;
+  powerbi: {
+    pbipPath: string;
+    semanticModelPath: string;
+    reportPath: string;
+  };
+  goldLayer: {
+    database: string;
+    schema: string;
+    tablesOrViews: string[];
+  };
+  mappings: SourceMapEntry[];
+}
+
+export const aquisicaoSourceMap: DashboardSourceMap = {
+  dashboard: "dash-aquisicao",
+  description:
+    "Mapeamento Power BI → Snowflake para as páginas Aquisição, Aquisição SDR e Aquisição visão geral.",
+  powerbi: {
+    pbipPath: "powerbi-input/dash-aquisicao/",
+    semanticModelPath:
+      "powerbi-input/dash-aquisicao/Dash_Aquisicao.SemanticModel/definition/",
+    reportPath:
+      "powerbi-input/dash-aquisicao/Dash_Aquisicao.Report/definition/",
+  },
+  goldLayer: {
+    database: "SERVING_LAYER",
+    schema: "CONSULTORIA",
+    tablesOrViews: ["VW_FUNIL_CONSULTORIA", "VW_APORTE_RESGATE"],
+  },
+  mappings: [
+    {
+      powerbiMeasure: ".ARR Ajustado via API",
+      daxReference:
+        "CASE: status∈zerados→0 | TOMBOU='SIM' e PLxTX<6k→6000 | ELSE PL_API×TAXA",
+      powerbiVisual: "KpiCard / tabela SDR (b87d0e73fa2c3d78453d)",
+      snowflakeTableOrView: "SERVING_LAYER.CONSULTORIA.VW_FUNIL_CONSULTORIA",
+      snowflakeExpression:
+        "SUM(CASE WHEN status_zerado THEN 0 WHEN TOMBOU='SIM' AND PLxTX<6000 THEN 6000 ELSE CADASTRO_PL_TOTAL_IMPLANTADO_API*TAXA_FECHADA_CONSULTORIA END)",
+      queryFile: "snowflake/queries/dashboards/dash-aquisicao/kpis.sql",
+      usedInComponent:
+        "src/features/dashboards/dash-aquisicao/snowflake-queries.ts",
+      status: "pending_validation",
+      notes: "Piso R$6k aplica-se apenas quando TOMBOU='SIM'. Validar linha a linha.",
+    },
+    {
+      powerbiMeasure: "MRR Api",
+      daxReference: "[.ARR Ajustado via API] / 12",
+      powerbiVisual: "KpiCard / tabela SDR",
+      snowflakeTableOrView: "SERVING_LAYER.CONSULTORIA.VW_FUNIL_CONSULTORIA",
+      snowflakeExpression: "SUM(arr_ajustado_api) / 12",
+      queryFile: "snowflake/queries/dashboards/dash-aquisicao/kpis.sql",
+      usedInComponent:
+        "src/features/dashboards/dash-aquisicao/snowflake-queries.ts",
+      status: "pending_validation",
+      notes: "",
+    },
+    {
+      powerbiMeasure: "PL Consolidado",
+      daxReference:
+        "SUM('Clientes consultoria total_v2'[CADASTRO_PL_TOTAL_IMPLANTADO])",
+      powerbiVisual: "KpiCard / tabelas detalhe e SDR",
+      snowflakeTableOrView: "SERVING_LAYER.CONSULTORIA.VW_FUNIL_CONSULTORIA",
+      snowflakeExpression: "SUM(CADASTRO_PL_TOTAL_IMPLANTADO)",
+      queryFile: "snowflake/queries/dashboards/dash-aquisicao/kpis.sql",
+      usedInComponent:
+        "src/features/dashboards/dash-aquisicao/snowflake-queries.ts",
+      status: "pending_validation",
+      notes: "",
+    },
+    {
+      powerbiMeasure: "Qtd implantações",
+      daxReference: "COUNTROWS(TOMBOU='SIM')",
+      powerbiVisual: "KpiCard / tabela SDR",
+      snowflakeTableOrView: "SERVING_LAYER.CONSULTORIA.VW_FUNIL_CONSULTORIA",
+      snowflakeExpression: "COUNT_IF(TOMBOU = 'SIM')",
+      queryFile: "snowflake/queries/dashboards/dash-aquisicao/kpis.sql",
+      usedInComponent:
+        "src/features/dashboards/dash-aquisicao/snowflake-queries.ts",
+      status: "pending_validation",
+      notes: "",
+    },
+    {
+      powerbiMeasure: "Taxa efetiva closer",
+      daxReference: "DIVIDE([.ARR Ajustado], [PL Consolidado])",
+      powerbiVisual: "KpiCard / tabela SDR",
+      snowflakeTableOrView: "SERVING_LAYER.CONSULTORIA.VW_FUNIL_CONSULTORIA",
+      snowflakeExpression:
+        "SUM(arr_ajustado_api) / NULLIF(SUM(CADASTRO_PL_TOTAL_IMPLANTADO), 0)",
+      queryFile: "snowflake/queries/dashboards/dash-aquisicao/kpis.sql",
+      usedInComponent:
+        "src/features/dashboards/dash-aquisicao/snowflake-queries.ts",
+      status: "pending_validation",
+      notes:
+        "DAX usa .ARR Ajustado (PL base); SQL usa _API. Confirmar numerador correto.",
+    },
+    {
+      powerbiMeasure: "Total ARR card ajustado",
+      daxReference:
+        "SUMX(VALUES(CADASTRO_COD_GORILA), IF(PLxTX<6000, 6000, PLxTX))",
+      powerbiVisual: "KpiCard / tabela SDR",
+      snowflakeTableOrView: "SERVING_LAYER.CONSULTORIA.VW_FUNIL_CONSULTORIA",
+      snowflakeExpression:
+        "SELECT SUM(GREATEST(SUM(PLxTX),6000)) FROM ... GROUP BY CADASTRO_COD_GORILA",
+      queryFile: "snowflake/queries/dashboards/dash-aquisicao/kpis.sql",
+      usedInComponent:
+        "src/features/dashboards/dash-aquisicao/snowflake-queries.ts",
+      status: "pending_validation",
+      notes:
+        "Sem filtro de status e sem filtro de TOMBOU — diferente de .ARR Ajustado. Confirmar com negócio.",
+    },
+    {
+      powerbiMeasure: "SLA Aquisicao",
+      daxReference: "DATEDIFF(MAX(ASSINATURA_TERMO), MAX(DATA_IMPLANTACAO), DAY)",
+      powerbiVisual: "KpiCard / coluna tabela detalhe",
+      snowflakeTableOrView: "SERVING_LAYER.CONSULTORIA.VW_FUNIL_CONSULTORIA",
+      snowflakeExpression:
+        "DATEDIFF('day', MAX(CADASTRO_DATA_ASSINATURA_TERMO), MAX(CADASTRO_DATA_IMPLANTACAO))",
+      queryFile: "snowflake/queries/dashboards/dash-aquisicao/kpis.sql",
+      usedInComponent:
+        "src/features/dashboards/dash-aquisicao/snowflake-queries.ts",
+      status: "pending_validation",
+      notes:
+        "Card usa MAX; tabela usa datediff por linha. Confirmar qual está no card original.",
+    },
+    {
+      powerbiMeasure: "Variavel consultor aquisicao",
+      daxReference: "([MRR Api] × 2 − [Variavel closer]) × (1−0,18)",
+      powerbiVisual: "tabela SDR (b87d0e73fa2c3d78453d)",
+      snowflakeTableOrView: "SERVING_LAYER.CONSULTORIA.VW_FUNIL_CONSULTORIA",
+      snowflakeExpression:
+        "((MRR_API × 2) - (MRR_API × TAXA_EFETIVA_CLOSER)) × 0.82",
+      queryFile:
+        "snowflake/queries/dashboards/dash-aquisicao/detail-table-sdr.sql",
+      usedInComponent:
+        "src/features/dashboards/dash-aquisicao/snowflake-queries.ts",
+      status: "pending_validation",
+      notes:
+        "Cálculo em cadeia. Validar com responsável de negócio antes de publicar.",
+    },
+  ],
+};
